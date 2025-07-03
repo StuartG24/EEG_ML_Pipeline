@@ -1,6 +1,7 @@
 # Named Data Folders & large EEG .fif files
 *_exgithub/
 *.fif
+*.pkl
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
