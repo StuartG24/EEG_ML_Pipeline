@@ -55,16 +55,8 @@ def classification_metrics(for_Model, X_test, y_test, y_pred):
     print(f'Recall: {metrics.recall_score(y_true=y_test, y_pred=y_pred, pos_label=1):.4f}')
     print(f'F1 Score {metrics.f1_score(y_true=y_test, y_pred=y_pred, pos_label=1):.4f}')
     print(f'Specificity: {tn / (tn + fp):.4f}')
-    print(f'Hamming Loss {metrics.hamming_loss(y_true=y_test, y_pred=y_pred):.4f}')
     print(f'Fall Out (FPR): {fp / (fp + tn):.4f}')
-
-
-    # Plot Confusion Matrix
-    class_labels = for_Model.classes_
-    fig, ax = plt.subplots(figsize=(12,4))
-    ax.set_title('Confusion Matrix')
-    ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_labels).plot(ax=ax)
-    plt.show
+    print(f'Hamming Loss {metrics.hamming_loss(y_true=y_test, y_pred=y_pred):.4f}')
 
     y_probabilities = for_Model.predict_proba(X_test)[:, 1]
     roc_auc_score = metrics.roc_auc_score(y_true=y_test, y_score=y_probabilities)
@@ -72,13 +64,41 @@ def classification_metrics(for_Model, X_test, y_test, y_pred):
     gini_score = 2 * roc_auc_score - 1
     print(f'Gini Index: {gini_score:.4f}')
 
-    # Plot the ROC curve
-    fig, ax = plt.subplots(figsize=(6,4))
-    ax.set_title('ROC Curve')
-    roc_display = RocCurveDisplay.from_estimator(for_Model, X_test, y_test, ax=ax, pos_label=1)
-    plt.show()
+    # Plot Confusion Matrix & ROC Curve
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(18,6))
+    fig.suptitle(f'Model Prediction Results', fontsize=20)
 
+    axes[0].set_title('Confusion Matrix')    
+    class_labels = for_Model.classes_
+    ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_labels).plot(ax=axes[0])
+
+    axes[1].set_title('ROC Curve')
+    roc_display = RocCurveDisplay.from_estimator(for_Model, X_test, y_test, ax=axes[1], pos_label=1)
+
+    plt.tight_layout()
+    plt.show()
     plt.style.use('ggplot')
+
+
+    # class_labels = for_Model.classes_
+    # fig, ax = plt.subplots(figsize=(12,4))
+    # ax.set_title('Confusion Matrix')
+    # ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=class_labels).plot(ax=ax)
+    # plt.show
+
+    # y_probabilities = for_Model.predict_proba(X_test)[:, 1]
+    # roc_auc_score = metrics.roc_auc_score(y_true=y_test, y_score=y_probabilities)
+    # print(f'ROC-AUC Score {roc_auc_score:.4f}')
+    # gini_score = 2 * roc_auc_score - 1
+    # print(f'Gini Index: {gini_score:.4f}')
+
+    # # Plot the ROC curve
+    # fig, ax = plt.subplots(figsize=(6,4))
+    # ax.set_title('ROC Curve')
+    # roc_display = RocCurveDisplay.from_estimator(for_Model, X_test, y_test, ax=ax, pos_label=1)
+    # plt.show()
+
+    # plt.style.use('ggplot')
 
 # Get Feature Importance for a RandomForest
 #
