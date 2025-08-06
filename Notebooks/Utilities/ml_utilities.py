@@ -38,7 +38,7 @@ def grid_search_results(search, duration):
 # Inspect the Evaluation Metrics for a Classification Model
 #
 from sklearn import metrics
-from sklearn.metrics import classification_report, confusion_matrix, ConfusionMatrixDisplay, RocCurveDisplay
+from sklearn.metrics import matthews_corrcoef, confusion_matrix, ConfusionMatrixDisplay, RocCurveDisplay
 
 def classification_metrics(for_Model, X_test, y_test, y_pred):
     plt.style.use('default')
@@ -48,13 +48,17 @@ def classification_metrics(for_Model, X_test, y_test, y_pred):
     # Calculate Confusion Matrix
     cm = confusion_matrix(y_test, y_pred)
     tn, fp, fn, tp = cm.ravel()
+    mcc = matthews_corrcoef(y_test, y_pred)
 
     # Print various metrics
-    print(f'Accuracy: {metrics.accuracy_score(y_true=y_test, y_pred=y_pred):.4f}')
+    print('-----------')
+    print(f'Recall (Sensitivity, TP Rate): {metrics.recall_score(y_true=y_test, y_pred=y_pred, pos_label=1):.4f}')
     print(f'Precision: {metrics.precision_score(y_true=y_test, y_pred=y_pred, pos_label=1):.4f}')
-    print(f'Recall: {metrics.recall_score(y_true=y_test, y_pred=y_pred, pos_label=1):.4f}')
     print(f'F1 Score {metrics.f1_score(y_true=y_test, y_pred=y_pred, pos_label=1):.4f}')
     print(f'Specificity: {tn / (tn + fp):.4f}')
+    print(f'MCC: {mcc:.4f}')
+    print('-----------')
+    print(f'Accuracy: {metrics.accuracy_score(y_true=y_test, y_pred=y_pred):.4f}')
     print(f'Fall Out (FPR): {fp / (fp + tn):.4f}')
     print(f'Hamming Loss {metrics.hamming_loss(y_true=y_test, y_pred=y_pred):.4f}')
 
@@ -99,6 +103,17 @@ def classification_metrics(for_Model, X_test, y_test, y_pred):
     # plt.show()
 
     # plt.style.use('ggplot')
+
+# Collate & Print Probabilities for a Prediction
+#
+def get_prediction_probabilities(y_pred, y_probs):
+    predicted_prob = [y_probs[i, pred] for i, pred in enumerate(y_pred)]
+    results_df = pd.DataFrame({
+    'Prediction': y_pred,
+    'Predicted_Probability': predicted_prob
+    })
+    print(results_df.shape)
+    display(results_df.head(10))
 
 # Get Feature Importance for a RandomForest
 #
