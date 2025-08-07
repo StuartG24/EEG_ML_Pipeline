@@ -107,14 +107,21 @@ def classification_metrics(for_Model, X_test, y_test, y_pred):
 
 # Collate & Print Probabilities for a Prediction
 #
-def get_prediction_probabilities(y_pred, y_probs):
+def get_prediction_probabilities(y_pred, y_probs, y_true):
     predicted_prob = [y_probs[i, pred] for i, pred in enumerate(y_pred)]
     results_df = pd.DataFrame({
     'Prediction': y_pred,
-    'Predicted_Probability': predicted_prob
+    'Predicted_Probability': predicted_prob,
+    'True': y_true
     })
     print(results_df.shape)
     display(results_df.head(10))
+
+    print('Mismatches')
+    mismatches = results_df[results_df['Prediction'] != results_df['True']]
+    display(mismatches)
+
+    return results_df
 
 # Get Feature Importance for a RandomForest
 #
