@@ -8,6 +8,7 @@ plt.style.use('ggplot')
 from IPython.display import display
 import pandas as pd
 import numpy as np
+import shap
 
 # Inspect ML Model Parameters
 #
@@ -146,3 +147,52 @@ def feature_importance(model_rf, data_pipeline):
     plt.title('Feature Importances (Sorted)')
     plt.gca().invert_yaxis()  # Invert y-axis to have the most important feature at the top
     plt.show()
+
+# Get Feature Importance Using SHAP Values
+#
+
+def get_shap_importance(X_train, X_test, model, data_pipeline):
+
+    def model_predict(X):
+        return model.predict_proba(X)[:, 1] 
+    
+    # Select a small background dataset (e.g., 100 samples)
+    background = X_train[np.random.choice(X_train.shape[0], 100, replace=False)]
+
+    # Get SHAP Values
+    explainer = shap.KernelExplainer(model_predict, background)
+    shap_values = explainer.shap_values(X_test)
+
+    # Get mean absolute SHAP values for global importance
+    global_importance = np.abs(shap_values).mean(axis=0)
+    importance_percentages = (global_importance / global_importance.sum()) * 100
+    # feature_ranking = np.argsort(global_importance)[::-1]
+
+    # Create df with names and importance
+    feature_names = data_pipeline.named_steps['data_preprocess'].get_feature_names_out()
+    shap_importance_df = pd.DataFrame({
+        'feature': feature_names,
+        'importance_%': importance_percentages
+    }).sort_values(by='importance_%', ascending=False).reset_index(drop=True)
+    # print(shap_importance_df.head())
+
+    # # Get feature names for the transformed data
+    # print('Top 5 Features by SHAP importance')
+    # for idx in feature_ranking[:5]:
+    #     print(f"{feature_names[idx]}: {global_importance[idx]:.4f}")
+    
+    # Plot the Top 25
+    print('SHAP Values Importance')
+    print(shap_importance_df.shape)
+    display(shap_importance_df.head())
+
+    importance_df = shap_importance_df.head(25)
+    plt.figure(figsize=(12, 8))
+    plt.barh(importance_df['feature'], importance_df['importance_%'], color='skyblue')
+    plt.xlabel('Importance %')
+    plt.ylabel('Feature')
+    plt.title('Feature Importances (Sorted)')
+    plt.gca().invert_yaxis()  # Invert y-axis to have the most important feature at the top
+    plt.show()
+    
+    return shap_importance_df
