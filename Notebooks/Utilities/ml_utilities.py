@@ -36,6 +36,7 @@ def grid_search_results(search, duration):
     display(all_search_results[['rank_test_score', 'mean_test_score', 'mean_fit_time', 'mean_score_time', 'params']].sort_values(by='rank_test_score').head(top_n))
 
 
+############
 # Inspect the Evaluation Metrics for a Classification Model
 #
 from sklearn import metrics
